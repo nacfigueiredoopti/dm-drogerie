@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,14 +6,14 @@ import {
   ScrollView,
   Dimensions,
   TouchableOpacity,
-  ImageBackground,
+  Image,
 } from 'react-native';
 import { useDecision } from '@optimizely/react-sdk';
 import { Colors } from '../constants/colors';
 import { promotions } from '../data/categories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BANNER_HEIGHT = 260;
+const BANNER_HEIGHT = 320;
 
 const colorMap: Record<string, string> = {
   red: '#E30613',
@@ -35,6 +35,7 @@ const resolveColor = (color: string): string => {
 const HeroBanner: React.FC = () => {
   const scrollRef = useRef<ScrollView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const userInteractedRef = useRef(false);
 
   const [decision] = useDecision('hero_button', { autoUpdate: true });
   const variables = decision?.variables || {};
@@ -42,6 +43,7 @@ const HeroBanner: React.FC = () => {
   const buttonTextColor = resolveColor(variables['button_text_color'] as string || 'white');
   const buttonShape = variables['button_shape'] as string || 'rounded';
   const buttonText = variables['button_text'] as string || 'Jetzt entdecken';
+  const bannerAutoScroll = variables['banner_auto_scroll'] as boolean ?? true;
 
   const borderRadiusMap: Record<string, number> = {
     square: 0,
@@ -51,18 +53,35 @@ const HeroBanner: React.FC = () => {
   const borderRadius = borderRadiusMap[buttonShape] ?? 8;
 
   useEffect(() => {
+    if (!bannerAutoScroll) return;
     const timer = setInterval(() => {
+      if (userInteractedRef.current) return;
       const nextIndex = (activeIndex + 1) % promotions.length;
       scrollRef.current?.scrollTo({ x: nextIndex * SCREEN_WIDTH, animated: true });
       setActiveIndex(nextIndex);
     }, 4000);
     return () => clearInterval(timer);
-  }, [activeIndex]);
+  }, [activeIndex, bannerAutoScroll]);
 
   const handleScroll = (event: any) => {
     const index = Math.round(event.nativeEvent.contentOffset.x / SCREEN_WIDTH);
     setActiveIndex(index);
   };
+
+  const handleScrollBeginDrag = useCallback(() => {
+    userInteractedRef.current = true;
+  }, []);
+
+  const goToSlide = useCallback((index: number) => {
+    scrollRef.current?.scrollTo({ x: index * SCREEN_WIDTH, animated: true });
+    setActiveIndex(index);
+    userInteractedRef.current = true;
+  }, []);
+
+  const goNext = useCallback(() => {
+    const nextIndex = (activeIndex + 1) % promotions.length;
+    goToSlide(nextIndex);
+  }, [activeIndex, goToSlide]);
 
   return (
     <View style={styles.container}>
@@ -72,51 +91,51 @@ const HeroBanner: React.FC = () => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         onMomentumScrollEnd={handleScroll}
+        onScrollBeginDrag={handleScrollBeginDrag}
       >
         {promotions.map((promo) => (
-          <ImageBackground
-            key={promo.id}
-            source={{ uri: promo.image }}
-            style={[styles.banner, { backgroundColor: promo.color }]}
-            imageStyle={styles.bannerImage}
-          >
-            <View style={styles.overlay}>
-              <View style={styles.bannerContent}>
-                {/* Content card overlay like dm.de */}
-                <View style={styles.contentCard}>
-                  <Text style={styles.bannerTitle}>{promo.title}</Text>
-                  <Text style={styles.bannerSubtitle}>{promo.subtitle}</Text>
-                  <TouchableOpacity
-                    style={[
-                      styles.bannerButton,
-                      { backgroundColor: buttonColor, borderRadius },
-                    ]}
-                  >
-                    <Text style={[styles.bannerButtonText, { color: buttonTextColor }]}>
-                      → {buttonText}
-                    </Text>
-                  </TouchableOpacity>
-                  {decision?.variationKey && (
-                    <Text style={styles.variationLabel}>
-                      Variation: {decision.variationKey}
-                    </Text>
-                  )}
-                </View>
+          <View key={promo.id} style={styles.banner}>
+            <Image
+              source={{ uri: promo.image }}
+              style={styles.bannerImage}
+              resizeMode="cover"
+            />
+            {/* Content card overlay like dm.de */}
+            <View style={styles.contentCardWrapper}>
+              <View style={styles.contentCard}>
+                <Text style={styles.bannerTitle}>{promo.title}</Text>
+                <Text style={styles.bannerSubtitle}>{promo.subtitle}</Text>
+                <TouchableOpacity
+                  style={[
+                    styles.bannerButton,
+                    { backgroundColor: buttonColor, borderRadius },
+                  ]}
+                >
+                  <Text style={[styles.bannerButtonText, { color: buttonTextColor }]}>
+                    → {buttonText}
+                  </Text>
+                </TouchableOpacity>
+                {decision?.variationKey && (
+                  <Text style={styles.variationLabel}>
+                    Variation: {decision.variationKey}
+                  </Text>
+                )}
               </View>
             </View>
             {/* Navigation arrow */}
-            <TouchableOpacity style={styles.navArrow}>
+            <TouchableOpacity style={styles.navArrow} onPress={goNext}>
               <Text style={styles.navArrowText}>›</Text>
             </TouchableOpacity>
-          </ImageBackground>
+          </View>
         ))}
       </ScrollView>
 
       {/* Dots */}
       <View style={styles.dotsContainer}>
         {promotions.map((_, index) => (
-          <View
+          <TouchableOpacity
             key={index}
+            onPress={() => goToSlide(index)}
             style={[
               styles.dot,
               index === activeIndex ? styles.dotActive : styles.dotInactive,
@@ -135,18 +154,18 @@ const styles = StyleSheet.create({
   banner: {
     width: SCREEN_WIDTH,
     height: BANNER_HEIGHT,
-    justifyContent: 'center',
+    position: 'relative' as const,
   },
   bannerImage: {
-    opacity: 0.85,
+    ...StyleSheet.absoluteFillObject,
+    width: SCREEN_WIDTH,
+    height: BANNER_HEIGHT,
   },
-  overlay: {
-    flex: 1,
-    justifyContent: 'center',
+  contentCardWrapper: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center' as const,
+    alignItems: 'flex-end' as const,
     paddingHorizontal: 24,
-  },
-  bannerContent: {
-    alignItems: 'flex-end',
   },
   contentCard: {
     backgroundColor: 'rgba(255,255,255,0.95)',

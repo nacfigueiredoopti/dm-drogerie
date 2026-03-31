@@ -666,24 +666,24 @@ export const categories: Category[] = [
 export const promotions = [
   {
     id: 'promo1',
-    title: 'Bis zu 30% Rabatt',
-    subtitle: 'Auf ausgewählte Balea Produkte',
-    color: '#E30613',
-    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=600',
+    title: 'Ein zarter\nHauch Farbe',
+    subtitle: 'Blush für Deinen perfekten Glow',
+    color: '#f8c8d4',
+    image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&h=600&fit=crop',
   },
   {
     id: 'promo2',
-    title: 'Neu: alverde NATURKOSMETIK',
+    title: 'Neu: alverde\nNATURKOSMETIK',
     subtitle: 'Entdecke die neue Pflegeserie',
     color: '#558B2F',
-    image: 'https://images.unsplash.com/photo-1570194065650-d99fb4a38c0a?w=600',
+    image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?w=1200&h=600&fit=crop',
   },
   {
     id: 'promo3',
-    title: 'Sonnenschutz Wochen',
+    title: 'Sonnenschutz\nWochen',
     subtitle: 'Alles für den Sommer bei dm',
     color: '#FEC700',
-    image: 'https://images.unsplash.com/photo-1532947974-2e3965da25a4?w=600',
+    image: 'https://images.unsplash.com/photo-1532947974-2e3965da25a4?w=1200&h=600&fit=crop',
   },
 ];
 
