@@ -90,11 +90,11 @@ export const categories: Category[] = [
         name: 'Naturkosmetik Gesichtscreme',
         brand: 'alverde',
         price: 4.95,
-        image: 'https://images.unsplash.com/photo-1570194065650-d99fb4a38c0a?w=300',
+        image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300',
         images: [
-          'https://images.unsplash.com/photo-1570194065650-d99fb4a38c0a?w=300',
-          'https://images.unsplash.com/photo-1540555700478-4be289fbec6d?w=300',
-          'https://images.unsplash.com/photo-1599305090598-fe179d501227?w=300',
+          'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=300',
+          'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=300',
+          'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=300',
         ],
         rating: 4.3,
         reviewCount: 654,
@@ -126,11 +126,11 @@ export const categories: Category[] = [
         name: 'Sonnenmilch LSF 30',
         brand: 'Sun Dance',
         price: 3.45,
-        image: 'https://images.unsplash.com/photo-1532947974-2e3965da25a4?w=300',
+        image: 'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=300',
         images: [
-          'https://images.unsplash.com/photo-1532947974-2e3965da25a4?w=300',
-          'https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?w=300',
-          'https://images.unsplash.com/photo-1526758097130-bab247274f58?w=300',
+          'https://images.unsplash.com/photo-1611930022073-b7a4ba5fcccd?w=300',
+          'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=300',
+          'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300',
         ],
         rating: 4.6,
         reviewCount: 1893,
@@ -183,7 +183,7 @@ export const categories: Category[] = [
         images: [
           'https://images.unsplash.com/photo-1631214540553-ff044a3ff1ea?w=300',
           'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=300',
-          'https://images.unsplash.com/photo-1597225244660-1cd128c64284?w=300',
+          'https://images.unsplash.com/photo-1583241800698-e8ab01830a07?w=300',
         ],
         rating: 4.4,
         reviewCount: 1102,
@@ -200,7 +200,7 @@ export const categories: Category[] = [
         image: 'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=300',
         images: [
           'https://images.unsplash.com/photo-1631729371254-42c2892f0e6e?w=300',
-          'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=300',
+          'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300',
           'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300',
         ],
         rating: 4.0,
@@ -219,8 +219,8 @@ export const categories: Category[] = [
         image: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=300',
         images: [
           'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=300',
-          'https://images.unsplash.com/photo-1585128792020-803d29415281?w=300',
-          'https://images.unsplash.com/photo-1610992015732-2449b0ae3f8d?w=300',
+          'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=300',
+          'https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=300',
         ],
         rating: 4.3,
         reviewCount: 543,
@@ -273,7 +273,7 @@ export const categories: Category[] = [
         images: [
           'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=300',
           'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=300',
-          'https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=300',
+          'https://images.unsplash.com/photo-1526947425960-945c6e72858f?w=300',
         ],
         rating: 4.6,
         reviewCount: 1567,
@@ -345,7 +345,7 @@ export const categories: Category[] = [
         images: [
           'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300',
           'https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=300',
-          'https://images.unsplash.com/photo-1576671081837-49000212a370?w=300',
+          'https://images.unsplash.com/photo-1550572017-edd951b55104?w=300',
         ],
         rating: 4.7,
         reviewCount: 2876,
@@ -683,7 +683,7 @@ export const promotions = [
     title: 'Sonnenschutz\nWochen',
     subtitle: 'Alles für den Sommer bei dm',
     color: '#FEC700',
-    image: 'https://images.unsplash.com/photo-1532947974-2e3965da25a4?w=1200&h=600&fit=crop',
+    image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200&h=600&fit=crop',
   },
 ];
 
