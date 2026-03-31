@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
 import { Colors } from '../constants/colors';
 import { Category } from '../data/categories';
@@ -17,8 +18,12 @@ interface CategoryGridProps {
 const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onCategoryPress }) => {
   return (
     <View style={styles.container}>
-      <Text style={styles.sectionTitle}>Sortiment</Text>
-      <View style={styles.grid}>
+      <Text style={styles.sectionTitle}>Beliebte Kategorien</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {categories.map((category) => (
           <TouchableOpacity
             key={category.id}
@@ -26,79 +31,88 @@ const CategoryGrid: React.FC<CategoryGridProps> = ({ categories, onCategoryPress
             onPress={() => onCategoryPress(category)}
             activeOpacity={0.7}
           >
-            <View style={[styles.imageContainer, { backgroundColor: category.color + '30' }]}>
+            <View style={styles.imageContainer}>
               <Image
                 source={{ uri: category.image }}
                 style={styles.categoryImage}
                 resizeMode="cover"
               />
-              <View style={[styles.iconBadge, { backgroundColor: category.color }]}>
-                <Text style={styles.categoryIcon}>{category.icon}</Text>
-              </View>
             </View>
-            <Text style={styles.categoryName} numberOfLines={2}>
-              {category.name}
-            </Text>
+            <View style={styles.labelContainer}>
+              <Text style={styles.categoryName}>
+                {category.name}
+              </Text>
+            </View>
           </TouchableOpacity>
         ))}
-      </View>
+        {/* Navigation arrow */}
+        <TouchableOpacity style={styles.navArrow}>
+          <Text style={styles.navArrowText}>›</Text>
+        </TouchableOpacity>
+      </ScrollView>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 16,
-    paddingVertical: 20,
+    paddingVertical: 24,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
+    paddingHorizontal: 16,
     marginBottom: 16,
   },
-  grid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  scrollContent: {
+    paddingHorizontal: 16,
     gap: 12,
-  },
-  categoryCard: {
-    width: '22.5%',
     alignItems: 'center',
   },
-  imageContainer: {
-    width: 72,
-    height: 72,
-    borderRadius: 16,
+  categoryCard: {
+    width: 180,
+    borderRadius: 8,
     overflow: 'hidden',
-    position: 'relative',
-    marginBottom: 8,
+    backgroundColor: Colors.surface,
+  },
+  imageContainer: {
+    width: '100%',
+    height: 120,
+    overflow: 'hidden',
   },
   categoryImage: {
     width: '100%',
     height: '100%',
   },
-  iconBadge: {
-    position: 'absolute',
-    bottom: -2,
-    right: -2,
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: Colors.background,
-  },
-  categoryIcon: {
-    fontSize: 12,
+  labelContainer: {
+    padding: 12,
   },
   categoryName: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-    textAlign: 'center',
-    lineHeight: 16,
+    fontSize: 14,
+    fontWeight: '700',
+    color: Colors.dmBlue,
+    lineHeight: 20,
+  },
+  navArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
+    marginLeft: 4,
+  },
+  navArrowText: {
+    fontSize: 24,
+    color: Colors.dmBlue,
+    fontWeight: '300',
+    marginTop: -2,
   },
 });
 

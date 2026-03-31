@@ -12,43 +12,34 @@ import { Colors } from '../constants/colors';
 const tips = [
   {
     id: '1',
-    title: 'Hautpflege-Routine für den Sommer',
-    category: 'Pflege-Tipps',
-    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=300',
-    readTime: '5 Min.',
+    title: 'Schmink-Tipps für Anfänger',
+    subtitle: 'Schritt für Schritt zum perfekten Make-up',
+    image: 'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400',
   },
   {
     id: '2',
-    title: 'Die besten veganen Produkte bei dm',
-    category: 'Nachhaltigkeit',
-    image: 'https://images.unsplash.com/photo-1570194065650-d99fb4a38c0a?w=300',
-    readTime: '4 Min.',
+    title: 'Nagelpflege',
+    subtitle: 'Deine ultimative Anleitung',
+    image: 'https://images.unsplash.com/photo-1570194065650-d99fb4a38c0a?w=400',
   },
   {
     id: '3',
-    title: 'Baby-Erstausstattung: Was braucht man?',
-    category: 'Baby & Kind',
-    image: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=300',
-    readTime: '7 Min.',
+    title: 'Pediküre zuhause selber machen',
+    subtitle: 'Tipps und Anleitung',
+    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=400',
   },
   {
     id: '4',
     title: 'Natürliche Haarpflege-Tipps',
-    category: 'Haare',
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=300',
-    readTime: '3 Min.',
+    subtitle: 'Die besten Hausmittel',
+    image: 'https://images.unsplash.com/photo-1515488042361-ee00e0ddd4e4?w=400',
   },
 ];
 
 const TippsSection: React.FC = () => {
   return (
     <View style={styles.container}>
-      <View style={styles.headerRow}>
-        <Text style={styles.sectionTitle}>Tipps & Trends</Text>
-        <TouchableOpacity>
-          <Text style={styles.viewAll}>Alle ansehen →</Text>
-        </TouchableOpacity>
-      </View>
+      <Text style={styles.sectionTitle}>Tipps & Trends</Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -58,14 +49,17 @@ const TippsSection: React.FC = () => {
           <TouchableOpacity key={tip.id} style={styles.tipCard} activeOpacity={0.7}>
             <Image source={{ uri: tip.image }} style={styles.tipImage} resizeMode="cover" />
             <View style={styles.tipContent}>
-              <Text style={styles.tipCategory}>{tip.category}</Text>
+              <Text style={styles.tipSubtitle}>{tip.subtitle}</Text>
               <Text style={styles.tipTitle} numberOfLines={2}>
                 {tip.title}
               </Text>
-              <Text style={styles.readTime}>{tip.readTime} Lesezeit</Text>
             </View>
           </TouchableOpacity>
         ))}
+        {/* Navigation arrow */}
+        <TouchableOpacity style={styles.navArrow}>
+          <Text style={styles.navArrowText}>›</Text>
+        </TouchableOpacity>
       </ScrollView>
     </View>
   );
@@ -73,65 +67,63 @@ const TippsSection: React.FC = () => {
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical: 24,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    marginBottom: 16,
+    paddingVertical: 28,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  viewAll: {
-    fontSize: 14,
-    color: Colors.primary,
-    fontWeight: '600',
+    color: Colors.dmBlue,
+    paddingHorizontal: 16,
+    marginBottom: 16,
   },
   scrollContent: {
     paddingHorizontal: 16,
     gap: 14,
+    alignItems: 'center',
   },
   tipCard: {
     width: 220,
     backgroundColor: Colors.cardBg,
-    borderRadius: 12,
+    borderRadius: 8,
     overflow: 'hidden',
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    elevation: 2,
   },
   tipImage: {
     width: '100%',
-    height: 130,
+    height: 150,
   },
   tipContent: {
     padding: 12,
   },
-  tipCategory: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Colors.primary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  tipSubtitle: {
+    fontSize: 11,
+    fontWeight: '400',
+    color: Colors.textSecondary,
     marginBottom: 4,
   },
   tipTitle: {
     fontSize: 14,
-    fontWeight: '600',
-    color: Colors.textPrimary,
+    fontWeight: '700',
+    color: Colors.dmBlue,
     lineHeight: 20,
-    marginBottom: 6,
   },
-  readTime: {
-    fontSize: 11,
-    color: Colors.textLight,
+  navArrow: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  navArrowText: {
+    fontSize: 24,
+    color: Colors.dmBlue,
+    fontWeight: '300',
+    marginTop: -2,
   },
 });
 

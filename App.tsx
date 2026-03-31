@@ -1,7 +1,7 @@
 import 'react-native-get-random-values';
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { OptimizelyProvider } from '@optimizely/react-sdk';
@@ -22,22 +22,24 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <OptimizelyProvider
-      optimizely={optimizelyClient}
-      user={{ id: `user-${Date.now()}` }}
-      timeout={3000}
-    >
-      <SafeAreaView style={styles.container}>
-        <NavigationContainer>
+    <SafeAreaProvider>
+      <OptimizelyProvider
+        optimizely={optimizelyClient}
+        user={{ id: `user-${Date.now()}` }}
+        timeout={3000}
+      >
+        <SafeAreaView style={styles.container}>
+          <NavigationContainer>
           <Stack.Navigator
             screenOptions={{
               headerStyle: {
-                backgroundColor: Colors.primary,
+                backgroundColor: Colors.background,
               },
-              headerTintColor: Colors.textWhite,
+              headerTintColor: Colors.dmBlue,
               headerTitleStyle: {
                 fontWeight: '700',
                 fontSize: 18,
+                color: Colors.dmBlue,
               },
               headerShadowVisible: false,
             }}
@@ -67,14 +69,15 @@ export default function App() {
             />
           </Stack.Navigator>
         </NavigationContainer>
-      </SafeAreaView>
-    </OptimizelyProvider>
+        </SafeAreaView>
+      </OptimizelyProvider>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: Colors.background,
   },
 });

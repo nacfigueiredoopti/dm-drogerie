@@ -1,13 +1,18 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
+  ScrollView,
 } from 'react-native';
+import { useDecision } from '@optimizely/react-sdk';
 import { Colors } from '../constants/colors';
 import { Product } from '../data/categories';
+
+const CARD_WIDTH = 185;
+const IMAGE_HEIGHT = 180;
 
 interface ProductCardProps {
   product: Product;
@@ -16,6 +21,36 @@ interface ProductCardProps {
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal = false }) => {
+  const [decision] = useDecision('product_tile_carousel', { autoUpdate: true });
+  const variables = decision?.variables || {};
+  const enableCarousel = variables['enable_carousel'] as boolean ?? false;
+  const indicatorStyle = variables['indicator_style'] as string ?? 'dots';
+  const autoScroll = variables['auto_scroll'] as boolean ?? false;
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const images = enableCarousel && product.images && product.images.length > 1
+    ? product.images
+    : [product.image];
+  const showCarousel = images.length > 1;
+
+  const [activeIndex, setActiveIndex] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (!autoScroll || !showCarousel) return;
+    const timer = setInterval(() => {
+      const next = (activeIndex + 1) % images.length;
+      scrollRef.current?.scrollTo({ x: next * CARD_WIDTH, animated: true });
+      setActiveIndex(next);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [autoScroll, showCarousel, activeIndex, images.length]);
+
+  const handleImageScroll = (event: any) => {
+    const index = Math.round(event.nativeEvent.contentOffset.x / CARD_WIDTH);
+    setActiveIndex(index);
+  };
+
   const renderStars = (rating: number) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
@@ -28,6 +63,48 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
     return stars;
   };
 
+  const renderImageSection = () => {
+    if (!showCarousel) {
+      return <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />;
+    }
+
+    return (
+      <View>
+        <ScrollView
+          ref={scrollRef}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={handleImageScroll}
+          style={styles.imageCarousel}
+        >
+          {images.map((img, idx) => (
+            <Image key={idx} source={{ uri: img }} style={styles.image} resizeMode="cover" />
+          ))}
+        </ScrollView>
+        {indicatorStyle === 'dots' ? (
+          <View style={styles.dotsContainer}>
+            {images.map((_, idx) => (
+              <View
+                key={idx}
+                style={[
+                  styles.dot,
+                  idx === activeIndex ? styles.dotActive : styles.dotInactive,
+                ]}
+              />
+            ))}
+          </View>
+        ) : (
+          <View style={styles.counterContainer}>
+            <Text style={styles.counterText}>
+              {activeIndex + 1}/{images.length}
+            </Text>
+          </View>
+        )}
+      </View>
+    );
+  };
+
   if (horizontal) {
     return (
       <TouchableOpacity
@@ -35,25 +112,32 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
         onPress={() => onPress(product)}
         activeOpacity={0.7}
       >
-        <Image source={{ uri: product.image }} style={styles.horizontalImage} resizeMode="cover" />
+        <View style={styles.horizontalImageWrap}>
+          <Image source={{ uri: product.image }} style={styles.horizontalImage} resizeMode="cover" />
+          <TouchableOpacity
+            style={styles.favoriteButton}
+            onPress={() => setIsFavorite(!isFavorite)}
+          >
+            <Text style={styles.favoriteIcon}>{isFavorite ? '♥' : '♡'}</Text>
+          </TouchableOpacity>
+        </View>
         <View style={styles.horizontalContent}>
+          <Text style={styles.price}>{product.price.toFixed(2).replace('.', ',')} €</Text>
+          {product.pricePerUnit && (
+            <Text style={styles.pricePerUnit}>{product.pricePerUnit}</Text>
+          )}
           <Text style={styles.brand}>{product.brand}</Text>
           <Text style={styles.name} numberOfLines={2}>{product.name}</Text>
           <View style={styles.ratingContainer}>
             <View style={styles.starsContainer}>{renderStars(product.rating)}</View>
             <Text style={styles.reviewCount}>({product.reviewCount})</Text>
           </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.price}>{product.price.toFixed(2).replace('.', ',')} €</Text>
-            {product.originalPrice && (
-              <Text style={styles.originalPrice}>
-                {product.originalPrice.toFixed(2).replace('.', ',')} €
-              </Text>
-            )}
+          <View style={styles.availabilityRow}>
+            <View style={styles.availabilityItem}>
+              <View style={[styles.availabilityDot, { backgroundColor: Colors.available }]} />
+              <Text style={styles.availabilityText}>Lieferbar</Text>
+            </View>
           </View>
-          {product.pricePerUnit && (
-            <Text style={styles.pricePerUnit}>{product.pricePerUnit}</Text>
-          )}
         </View>
       </TouchableOpacity>
     );
@@ -65,47 +149,54 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
       onPress={() => onPress(product)}
       activeOpacity={0.7}
     >
-      {/* Badges */}
+      {/* Badges top-left */}
       {product.badges && product.badges.length > 0 && (
         <View style={styles.badgesContainer}>
-          {product.badges.map((badge, index) => (
+          {product.badges.slice(0, 1).map((badge, index) => (
             <View
               key={index}
               style={[
                 styles.badge,
+                badge === 'Eigenmarke' && { backgroundColor: Colors.badgeMarke },
                 badge === 'Bio' && { backgroundColor: Colors.badgeBio },
                 badge === 'Vegan' && { backgroundColor: Colors.badgeVegan },
-                badge === 'Eigenmarke' && { backgroundColor: Colors.primary },
-                badge === 'Bestseller' && { backgroundColor: Colors.accent },
+                badge === 'Bestseller' && { backgroundColor: Colors.primary },
                 badge === 'Naturkosmetik' && { backgroundColor: Colors.badgeVegan },
               ]}
             >
               <Text
                 style={[
                   styles.badgeText,
-                  badge === 'Bestseller' && { color: Colors.textPrimary },
+                  badge === 'Eigenmarke' && { fontSize: 8 },
                 ]}
               >
-                {badge}
+                {badge === 'Eigenmarke' ? 'MARKE dm' : badge === 'Bestseller' ? 'NEU' : badge.toUpperCase()}
               </Text>
             </View>
           ))}
         </View>
       )}
 
-      <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />
+      {/* Favorite button top-right */}
+      <TouchableOpacity
+        style={styles.favoriteButton}
+        onPress={() => setIsFavorite(!isFavorite)}
+      >
+        <Text style={[styles.favoriteIcon, isFavorite && styles.favoriteIconActive]}>
+          {isFavorite ? '♥' : '♡'}
+        </Text>
+      </TouchableOpacity>
+
+      {renderImageSection()}
+
+      {/* Cart button */}
+      <View style={styles.cartButtonContainer}>
+        <TouchableOpacity style={styles.cartButton}>
+          <Text style={styles.cartButtonIcon}>🛒</Text>
+        </TouchableOpacity>
+      </View>
 
       <View style={styles.content}>
-        <Text style={styles.brand}>{product.brand}</Text>
-        <Text style={styles.name} numberOfLines={2}>
-          {product.name}
-        </Text>
-
-        <View style={styles.ratingContainer}>
-          <View style={styles.starsContainer}>{renderStars(product.rating)}</View>
-          <Text style={styles.reviewCount}>({product.reviewCount})</Text>
-        </View>
-
         <View style={styles.priceRow}>
           <Text style={styles.price}>{product.price.toFixed(2).replace('.', ',')} €</Text>
           {product.originalPrice && (
@@ -117,13 +208,29 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
         {product.pricePerUnit && (
           <Text style={styles.pricePerUnit}>{product.pricePerUnit}</Text>
         )}
-        {product.volume && (
-          <Text style={styles.volume}>{product.volume}</Text>
-        )}
 
-        <TouchableOpacity style={styles.addToCartButton}>
-          <Text style={styles.addToCartText}>In den Warenkorb</Text>
-        </TouchableOpacity>
+        <Text style={styles.brand}>{product.brand}</Text>
+        <Text style={styles.name} numberOfLines={2}>
+          {product.name}
+          {product.volume ? `, ${product.volume}` : ''}
+        </Text>
+
+        <View style={styles.ratingContainer}>
+          <View style={styles.starsContainer}>{renderStars(product.rating)}</View>
+          <Text style={styles.reviewCount}>({product.reviewCount})</Text>
+        </View>
+
+        {/* Availability */}
+        <View style={styles.availabilitySection}>
+          <View style={styles.availabilityItem}>
+            <View style={[styles.availabilityDot, { backgroundColor: Colors.available }]} />
+            <Text style={styles.availabilityText}>Lieferbar</Text>
+          </View>
+          <View style={styles.availabilityItem}>
+            <View style={[styles.availabilityDot, { backgroundColor: Colors.dmBlue }]} />
+            <Text style={styles.availabilityText}>dm-Markt wählen</Text>
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -131,37 +238,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
 
 const styles = StyleSheet.create({
   card: {
-    width: 170,
+    width: CARD_WIDTH,
     backgroundColor: Colors.cardBg,
-    borderRadius: 12,
+    borderRadius: 0,
     overflow: 'hidden',
-    marginRight: 12,
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 3,
+    marginRight: 16,
     position: 'relative',
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
   },
   horizontalCard: {
     flexDirection: 'row',
     backgroundColor: Colors.cardBg,
-    borderRadius: 12,
     overflow: 'hidden',
     marginBottom: 12,
-    shadowColor: Colors.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 8,
-    elevation: 3,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.divider,
+    paddingBottom: 12,
+  },
+  horizontalImageWrap: {
+    position: 'relative',
   },
   horizontalImage: {
     width: 120,
-    height: 140,
+    height: 150,
   },
   horizontalContent: {
     flex: 1,
-    padding: 12,
+    paddingLeft: 12,
     justifyContent: 'center',
   },
   badgesContainer: {
@@ -174,54 +278,134 @@ const styles = StyleSheet.create({
     gap: 4,
   },
   badge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 2,
     backgroundColor: Colors.primary,
   },
   badgeText: {
     color: Colors.textWhite,
     fontSize: 9,
-    fontWeight: '700',
+    fontWeight: '800',
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+  favoriteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  favoriteIcon: {
+    fontSize: 18,
+    color: Colors.dmBlue,
+  },
+  favoriteIconActive: {
+    color: Colors.primary,
   },
   image: {
-    width: '100%',
-    height: 150,
+    width: CARD_WIDTH,
+    height: IMAGE_HEIGHT,
+  },
+  imageCarousel: {
+    width: CARD_WIDTH,
+    height: IMAGE_HEIGHT,
+  },
+  dotsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 6,
+    gap: 4,
+  },
+  dot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+  },
+  dotActive: {
+    backgroundColor: Colors.dmBlue,
+    width: 12,
+  },
+  dotInactive: {
+    backgroundColor: Colors.border,
+  },
+  counterContainer: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  counterText: {
+    color: Colors.textWhite,
+    fontSize: 10,
+    fontWeight: '600',
+  },
+  cartButtonContainer: {
+    alignItems: 'flex-end',
+    paddingRight: 8,
+    marginTop: -20,
+    zIndex: 5,
+  },
+  cartButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.dmBlue,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2,
+    shadowRadius: 2,
+    elevation: 3,
+  },
+  cartButtonIcon: {
+    fontSize: 16,
   },
   content: {
-    padding: 10,
+    paddingHorizontal: 8,
+    paddingTop: 8,
+    paddingBottom: 12,
   },
   brand: {
-    fontSize: 11,
-    fontWeight: '600',
+    fontSize: 12,
+    fontWeight: '400',
     color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
     marginBottom: 2,
+    marginTop: 6,
   },
   name: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
     marginBottom: 6,
     lineHeight: 18,
   },
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 6,
+    marginBottom: 8,
   },
   starsContainer: {
     flexDirection: 'row',
   },
   star: {
-    fontSize: 12,
+    fontSize: 13,
     color: Colors.accent,
   },
   reviewCount: {
-    fontSize: 10,
-    color: Colors.textLight,
+    fontSize: 11,
+    color: Colors.textSecondary,
     marginLeft: 4,
   },
   priceRow: {
@@ -232,7 +416,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 16,
     fontWeight: '800',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
   },
   originalPrice: {
     fontSize: 12,
@@ -241,25 +425,28 @@ const styles = StyleSheet.create({
   },
   pricePerUnit: {
     fontSize: 10,
-    color: Colors.textLight,
-    marginTop: 2,
-  },
-  volume: {
-    fontSize: 10,
-    color: Colors.textLight,
+    color: Colors.textSecondary,
     marginTop: 1,
   },
-  addToCartButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 6,
-    paddingVertical: 8,
-    alignItems: 'center',
-    marginTop: 8,
+  availabilitySection: {
+    gap: 3,
   },
-  addToCartText: {
-    color: Colors.textWhite,
-    fontSize: 12,
-    fontWeight: '700',
+  availabilityRow: {
+    marginTop: 6,
+  },
+  availabilityItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  availabilityDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+  },
+  availabilityText: {
+    fontSize: 11,
+    color: Colors.textSecondary,
   },
 });
 

@@ -15,6 +15,15 @@ interface CategoryNavBarProps {
   onCategoryPress: (category: Category) => void;
 }
 
+const extraTabs = [
+  { id: 'neu', name: 'Neu' },
+  { id: 'marken', name: 'Marken' },
+];
+
+const trailingTabs = [
+  { id: 'aktionen', name: 'Aktionen' },
+];
+
 const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
   categories,
   activeCategory,
@@ -27,6 +36,11 @@ const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        {extraTabs.map((tab) => (
+          <TouchableOpacity key={tab.id} style={styles.tab} activeOpacity={0.7}>
+            <Text style={styles.tabText}>{tab.name}</Text>
+          </TouchableOpacity>
+        ))}
         {categories.map((category) => {
           const isActive = category.id === activeCategory;
           return (
@@ -36,7 +50,6 @@ const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
               onPress={() => onCategoryPress(category)}
               activeOpacity={0.7}
             >
-              <Text style={styles.tabIcon}>{category.icon}</Text>
               <Text
                 style={[styles.tabText, isActive && styles.tabTextActive]}
                 numberOfLines={1}
@@ -46,6 +59,11 @@ const CategoryNavBar: React.FC<CategoryNavBarProps> = ({
             </TouchableOpacity>
           );
         })}
+        {trailingTabs.map((tab) => (
+          <TouchableOpacity key={tab.id} style={styles.tab} activeOpacity={0.7}>
+            <Text style={styles.tabText}>{tab.name}</Text>
+          </TouchableOpacity>
+        ))}
       </ScrollView>
     </View>
   );
@@ -58,32 +76,25 @@ const styles = StyleSheet.create({
     borderBottomColor: Colors.divider,
   },
   scrollContent: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    gap: 6,
+    paddingHorizontal: 16,
+    gap: 0,
   },
   tab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.surface,
-    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
   },
   tabActive: {
-    backgroundColor: Colors.primary,
-  },
-  tabIcon: {
-    fontSize: 14,
+    borderBottomColor: Colors.dmBlue,
   },
   tabText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.textPrimary,
+    fontSize: 14,
+    fontWeight: '500',
+    color: Colors.dmBlue,
   },
   tabTextActive: {
-    color: Colors.textWhite,
+    fontWeight: '700',
   },
 });
 

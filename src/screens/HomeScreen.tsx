@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, StyleSheet, View, Text } from 'react-native';
+import { ScrollView, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Colors } from '../constants/colors';
 import Header from '../components/Header';
@@ -47,16 +47,42 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           onCategoryPress={handleCategoryPress}
         />
 
+        {/* Breadcrumb */}
+        <View style={styles.breadcrumb}>
+          <TouchableOpacity>
+            <Text style={styles.breadcrumbLink}>Startseite</Text>
+          </TouchableOpacity>
+        </View>
+
         <HeroBanner />
 
-        <CategoryGrid
-          categories={categories}
-          onCategoryPress={handleCategoryPress}
-        />
+        {/* Category Title */}
+        <View style={styles.categoryTitleSection}>
+          <Text style={styles.categoryTitle}>Make-up</Text>
+          <View style={styles.subCategoryChips}>
+            {['Augen Make-up', 'Lippen Make-up', 'Teint', 'Nägel', 'Make-up Zubehör'].map((name) => (
+              <TouchableOpacity key={name} style={styles.chip}>
+                <Text style={styles.chipText}>{name}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
 
-        {/* Featured Products */}
+        {/* Promo Banner */}
+        <View style={styles.promoBanner}>
+          <View style={styles.promoBannerContent}>
+            <Text style={styles.promoBannerTitle}>
+              Jede Woche ein Geschenk nach Deinem Einkauf
+            </Text>
+            <Text style={styles.promoBannerSubtitle}>
+              → Jetzt in der dm-App entdecken
+            </Text>
+          </View>
+        </View>
+
+        {/* Neu im Sortiment */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Beliebte Produkte</Text>
+          <Text style={styles.sectionTitle}>Neu im Sortiment</Text>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -71,6 +97,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             ))}
           </ScrollView>
         </View>
+
+        <CategoryGrid
+          categories={categories}
+          onCategoryPress={handleCategoryPress}
+        />
 
         <EigenmarkenSection />
 
@@ -121,15 +152,71 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  breadcrumb: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+  },
+  breadcrumbLink: {
+    fontSize: 12,
+    color: Colors.dmBlue,
+    textDecorationLine: 'underline',
+  },
+  categoryTitleSection: {
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  categoryTitle: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: Colors.dmBlue,
+    marginBottom: 14,
+  },
+  subCategoryChips: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  chip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    backgroundColor: Colors.background,
+  },
+  chipText: {
+    fontSize: 13,
+    color: Colors.dmBlue,
+    fontWeight: '400',
+  },
+  promoBanner: {
+    marginHorizontal: 16,
+    marginBottom: 24,
+    backgroundColor: '#e8eef7',
+    borderRadius: 8,
+    padding: 20,
+  },
+  promoBannerContent: {},
+  promoBannerTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.dmBlue,
+    marginBottom: 4,
+  },
+  promoBannerSubtitle: {
+    fontSize: 14,
+    color: Colors.dmBlue,
+    fontWeight: '400',
+  },
   section: {
-    paddingVertical: 20,
+    paddingVertical: 24,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
     paddingHorizontal: 16,
-    marginBottom: 14,
+    marginBottom: 16,
   },
   productsScroll: {
     paddingHorizontal: 16,
@@ -137,8 +224,8 @@ const styles = StyleSheet.create({
   appBanner: {
     marginHorizontal: 16,
     marginVertical: 20,
-    backgroundColor: Colors.primary,
-    borderRadius: 16,
+    backgroundColor: Colors.dmBlue,
+    borderRadius: 12,
     padding: 20,
   },
   appBannerContent: {

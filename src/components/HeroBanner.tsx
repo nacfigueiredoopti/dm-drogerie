@@ -13,11 +13,11 @@ import { Colors } from '../constants/colors';
 import { promotions } from '../data/categories';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const BANNER_HEIGHT = 200;
+const BANNER_HEIGHT = 260;
 
 const colorMap: Record<string, string> = {
   red: '#E30613',
-  blue: '#2196F3',
+  blue: '#002d72',
   green: '#4CAF50',
   orange: '#FF9800',
   purple: '#9C27B0',
@@ -29,7 +29,7 @@ const colorMap: Record<string, string> = {
 };
 
 const resolveColor = (color: string): string => {
-  return colorMap[color?.toLowerCase()] || color || Colors.accent;
+  return colorMap[color?.toLowerCase()] || color || Colors.dmBlue;
 };
 
 const HeroBanner: React.FC = () => {
@@ -82,25 +82,32 @@ const HeroBanner: React.FC = () => {
           >
             <View style={styles.overlay}>
               <View style={styles.bannerContent}>
-                <Text style={styles.bannerTitle}>{promo.title}</Text>
-                <Text style={styles.bannerSubtitle}>{promo.subtitle}</Text>
-                <TouchableOpacity
-                  style={[
-                    styles.bannerButton,
-                    { backgroundColor: buttonColor, borderRadius },
-                  ]}
-                >
-                  <Text style={[styles.bannerButtonText, { color: buttonTextColor }]}>
-                    {buttonText}
-                  </Text>
-                </TouchableOpacity>
-                {decision?.variationKey && (
-                  <Text style={styles.variationLabel}>
-                    Variation: {decision.variationKey}
-                  </Text>
-                )}
+                {/* Content card overlay like dm.de */}
+                <View style={styles.contentCard}>
+                  <Text style={styles.bannerTitle}>{promo.title}</Text>
+                  <Text style={styles.bannerSubtitle}>{promo.subtitle}</Text>
+                  <TouchableOpacity
+                    style={[
+                      styles.bannerButton,
+                      { backgroundColor: buttonColor, borderRadius },
+                    ]}
+                  >
+                    <Text style={[styles.bannerButtonText, { color: buttonTextColor }]}>
+                      → {buttonText}
+                    </Text>
+                  </TouchableOpacity>
+                  {decision?.variationKey && (
+                    <Text style={styles.variationLabel}>
+                      Variation: {decision.variationKey}
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
+            {/* Navigation arrow */}
+            <TouchableOpacity style={styles.navArrow}>
+              <Text style={styles.navArrowText}>›</Text>
+            </TouchableOpacity>
           </ImageBackground>
         ))}
       </ScrollView>
@@ -131,66 +138,88 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   bannerImage: {
-    opacity: 0.4,
+    opacity: 0.85,
   },
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     paddingHorizontal: 24,
   },
   bannerContent: {
-    maxWidth: '70%',
+    alignItems: 'flex-end',
+  },
+  contentCard: {
+    backgroundColor: 'rgba(255,255,255,0.95)',
+    borderRadius: 4,
+    padding: 20,
+    maxWidth: '55%',
   },
   bannerTitle: {
-    fontSize: 26,
+    fontSize: 24,
     fontWeight: '800',
-    color: Colors.textWhite,
+    color: Colors.dmBlue,
     marginBottom: 6,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 4,
+    lineHeight: 30,
   },
   bannerSubtitle: {
-    fontSize: 15,
-    color: Colors.textWhite,
-    marginBottom: 16,
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 1, height: 1 },
-    textShadowRadius: 3,
+    fontSize: 14,
+    color: Colors.textBody,
+    marginBottom: 14,
+    lineHeight: 20,
   },
   bannerButton: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    paddingHorizontal: 0,
+    paddingVertical: 4,
   },
   bannerButtonText: {
     fontSize: 14,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+    fontWeight: '600',
+    color: Colors.dmBlue,
   },
   variationLabel: {
-    color: 'rgba(255,255,255,0.7)',
-    fontSize: 10,
+    color: Colors.textLight,
+    fontSize: 9,
     marginTop: 8,
     fontStyle: 'italic',
+  },
+  navArrow: {
+    position: 'absolute',
+    right: 12,
+    top: '50%',
+    marginTop: -20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: Colors.background,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  navArrowText: {
+    fontSize: 24,
+    color: Colors.dmBlue,
+    fontWeight: '300',
+    marginTop: -2,
   },
   dotsContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: 14,
     gap: 8,
   },
   dot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   dotActive: {
-    backgroundColor: Colors.primary,
-    width: 20,
+    backgroundColor: Colors.dmBlue,
   },
   dotInactive: {
     backgroundColor: Colors.border,

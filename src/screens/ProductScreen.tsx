@@ -61,7 +61,9 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
             style={styles.favoriteButton}
             onPress={() => setIsFavorite(!isFavorite)}
           >
-            <Text style={styles.favoriteIcon}>{isFavorite ? '❤️' : '🤍'}</Text>
+            <Text style={[styles.favoriteIcon, isFavorite && styles.favoriteIconActive]}>
+              {isFavorite ? '♥' : '♡'}
+            </Text>
           </TouchableOpacity>
 
           {/* Badges */}
@@ -74,18 +76,13 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
                     styles.badge,
                     badge === 'Bio' && { backgroundColor: Colors.badgeBio },
                     badge === 'Vegan' && { backgroundColor: Colors.badgeVegan },
-                    badge === 'Eigenmarke' && { backgroundColor: Colors.primary },
-                    badge === 'Bestseller' && { backgroundColor: Colors.accent },
+                    badge === 'Eigenmarke' && { backgroundColor: Colors.badgeMarke },
+                    badge === 'Bestseller' && { backgroundColor: Colors.primary },
                     badge === 'Naturkosmetik' && { backgroundColor: Colors.badgeVegan },
                   ]}
                 >
-                  <Text
-                    style={[
-                      styles.badgeText,
-                      badge === 'Bestseller' && { color: Colors.textPrimary },
-                    ]}
-                  >
-                    {badge}
+                  <Text style={styles.badgeText}>
+                    {badge === 'Eigenmarke' ? 'MARKE dm' : badge.toUpperCase()}
                   </Text>
                 </View>
               ))}
@@ -95,18 +92,6 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
 
         {/* Product Info */}
         <View style={styles.infoContainer}>
-          <Text style={styles.brand}>{product.brand}</Text>
-          <Text style={styles.name}>{product.name}</Text>
-
-          {/* Rating */}
-          <View style={styles.ratingRow}>
-            <View style={styles.starsContainer}>
-              {renderStars(product.rating)}
-            </View>
-            <Text style={styles.ratingText}>{product.rating}</Text>
-            <Text style={styles.reviewCount}>({product.reviewCount} Bewertungen)</Text>
-          </View>
-
           {/* Price */}
           <View style={styles.priceSection}>
             <Text style={styles.price}>
@@ -121,18 +106,37 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
           {product.pricePerUnit && (
             <Text style={styles.pricePerUnit}>{product.pricePerUnit}</Text>
           )}
-          {product.volume && (
-            <Text style={styles.volume}>Inhalt: {product.volume}</Text>
-          )}
+
+          <Text style={styles.brand}>{product.brand}</Text>
+          <Text style={styles.name}>
+            {product.name}
+            {product.volume ? `, ${product.volume}` : ''}
+          </Text>
+
+          {/* Rating */}
+          <View style={styles.ratingRow}>
+            <View style={styles.starsContainer}>
+              {renderStars(product.rating)}
+            </View>
+            <Text style={styles.reviewCount}>({product.reviewCount})</Text>
+          </View>
+
+          {/* Hinweise link */}
+          <TouchableOpacity style={styles.hinweiseRow}>
+            <Text style={styles.hinweiseIcon}>ⓘ</Text>
+            <Text style={styles.hinweiseText}>Hinweise</Text>
+          </TouchableOpacity>
 
           {/* Availability */}
-          <View style={styles.availabilityRow}>
-            <View style={styles.availabilityDot} />
-            <Text style={styles.availabilityText}>Online verfügbar</Text>
-          </View>
-          <View style={styles.availabilityRow}>
-            <View style={[styles.availabilityDot, { backgroundColor: Colors.success }]} />
-            <Text style={styles.availabilityText}>In Ihrer Filiale verfügbar</Text>
+          <View style={styles.availabilitySection}>
+            <View style={styles.availabilityRow}>
+              <View style={[styles.availabilityDot, { backgroundColor: Colors.available }]} />
+              <Text style={styles.availabilityText}>Lieferbar</Text>
+            </View>
+            <View style={styles.availabilityRow}>
+              <View style={[styles.availabilityDot, { backgroundColor: Colors.dmBlue }]} />
+              <Text style={styles.availabilityLink}>dm-Markt wählen</Text>
+            </View>
           </View>
 
           {/* Quantity Selector */}
@@ -157,6 +161,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
 
           {/* Add to Cart */}
           <TouchableOpacity style={styles.addToCartButton}>
+            <Text style={styles.addToCartIcon}>🛒</Text>
             <Text style={styles.addToCartText}>
               In den Warenkorb · {(product.price * quantity).toFixed(2).replace('.', ',')} €
             </Text>
@@ -174,7 +179,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({ route }) => {
               <Text style={styles.deliveryIcon}>🚚</Text>
               <View>
                 <Text style={styles.deliveryTitle}>Lieferung in 1-3 Werktagen</Text>
-                <Text style={styles.deliverySubtitle}>Kostenlos ab 49 €</Text>
+                <Text style={styles.deliverySubtitle}>Kostenlos ab 59 €</Text>
               </View>
             </View>
             <View style={styles.deliveryItem}>
@@ -220,7 +225,7 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: Colors.cardBg,
+    backgroundColor: 'rgba(255,255,255,0.9)',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: Colors.shadow,
@@ -230,7 +235,11 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   favoriteIcon: {
-    fontSize: 22,
+    fontSize: 24,
+    color: Colors.dmBlue,
+  },
+  favoriteIconActive: {
+    color: Colors.primary,
   },
   badgesContainer: {
     position: 'absolute',
@@ -242,54 +251,18 @@ const styles = StyleSheet.create({
   badge: {
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 2,
     backgroundColor: Colors.primary,
   },
   badgeText: {
     color: Colors.textWhite,
-    fontSize: 11,
-    fontWeight: '700',
+    fontSize: 10,
+    fontWeight: '800',
     textTransform: 'uppercase',
+    letterSpacing: 0.3,
   },
   infoContainer: {
     padding: 20,
-  },
-  brand: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  name: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: 10,
-    lineHeight: 28,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    gap: 6,
-  },
-  starsContainer: {
-    flexDirection: 'row',
-  },
-  star: {
-    fontSize: 18,
-    color: Colors.accent,
-  },
-  ratingText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  reviewCount: {
-    fontSize: 13,
-    color: Colors.textLight,
   },
   priceSection: {
     flexDirection: 'row',
@@ -298,59 +271,105 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   price: {
-    fontSize: 28,
-    fontWeight: '900',
-    color: Colors.textPrimary,
+    fontSize: 24,
+    fontWeight: '800',
+    color: Colors.dmBlue,
   },
   originalPrice: {
-    fontSize: 18,
+    fontSize: 16,
     color: Colors.textLight,
     textDecorationLine: 'line-through',
   },
   pricePerUnit: {
-    fontSize: 13,
-    color: Colors.textLight,
+    fontSize: 12,
+    color: Colors.textSecondary,
+    marginBottom: 12,
+  },
+  brand: {
+    fontSize: 12,
+    fontWeight: '400',
+    color: Colors.textSecondary,
     marginBottom: 2,
   },
-  volume: {
+  name: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: Colors.dmBlue,
+    marginBottom: 8,
+    lineHeight: 22,
+  },
+  ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+    gap: 6,
+  },
+  starsContainer: {
+    flexDirection: 'row',
+  },
+  star: {
+    fontSize: 16,
+    color: Colors.accent,
+  },
+  reviewCount: {
     fontSize: 13,
     color: Colors.textSecondary,
+  },
+  hinweiseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     marginBottom: 16,
+  },
+  hinweiseIcon: {
+    fontSize: 14,
+    color: Colors.textSecondary,
+  },
+  hinweiseText: {
+    fontSize: 13,
+    color: Colors.dmBlue,
+    textDecorationLine: 'underline',
+  },
+  availabilitySection: {
+    gap: 6,
+    marginBottom: 20,
   },
   availabilityRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 6,
   },
   availabilityDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: Colors.success,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
   },
   availabilityText: {
     fontSize: 13,
     color: Colors.textSecondary,
   },
+  availabilityLink: {
+    fontSize: 13,
+    color: Colors.dmBlue,
+    textDecorationLine: 'underline',
+  },
   quantitySection: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 20,
     marginBottom: 16,
     gap: 12,
   },
   quantityLabel: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
   },
   quantityControl: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 8,
+    borderRadius: 6,
   },
   quantityButton: {
     width: 40,
@@ -361,31 +380,36 @@ const styles = StyleSheet.create({
   quantityButtonText: {
     fontSize: 20,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
   },
   quantityValue: {
     width: 40,
     textAlign: 'center',
     fontSize: 16,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderColor: Colors.border,
     lineHeight: 40,
   },
   addToCartButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: 12,
+    backgroundColor: Colors.dmBlue,
+    borderRadius: 8,
     paddingVertical: 16,
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
+    gap: 8,
     marginBottom: 24,
+  },
+  addToCartIcon: {
+    fontSize: 18,
   },
   addToCartText: {
     color: Colors.textWhite,
     fontSize: 16,
-    fontWeight: '800',
-    letterSpacing: 0.5,
+    fontWeight: '700',
   },
   descriptionSection: {
     borderTopWidth: 1,
@@ -396,17 +420,17 @@ const styles = StyleSheet.create({
   descriptionTitle: {
     fontSize: 18,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
     marginBottom: 10,
   },
   descriptionText: {
     fontSize: 14,
-    color: Colors.textSecondary,
+    color: Colors.textBody,
     lineHeight: 22,
   },
   deliverySection: {
     backgroundColor: Colors.surface,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
     gap: 14,
   },
@@ -421,11 +445,11 @@ const styles = StyleSheet.create({
   deliveryTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textPrimary,
+    color: Colors.dmBlue,
   },
   deliverySubtitle: {
     fontSize: 12,
-    color: Colors.textLight,
+    color: Colors.textSecondary,
     marginTop: 1,
   },
 });
