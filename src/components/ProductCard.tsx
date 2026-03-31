@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   Image,
-  ScrollView,
+  FlatList,
 } from 'react-native';
 import { useDecision } from '@optimizely/react-sdk';
 import { Colors } from '../constants/colors';
@@ -34,22 +34,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
   const showCarousel = images.length > 1;
 
   const [activeIndex, setActiveIndex] = useState(0);
-  const scrollRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
 
   useEffect(() => {
     if (!autoScroll || !showCarousel) return;
     const timer = setInterval(() => {
       const next = (activeIndex + 1) % images.length;
-      scrollRef.current?.scrollTo({ x: next * CARD_WIDTH, animated: true });
+      flatListRef.current?.scrollToIndex({ index: next, animated: true });
       setActiveIndex(next);
     }, 3000);
     return () => clearInterval(timer);
   }, [autoScroll, showCarousel, activeIndex, images.length]);
 
-  const handleImageScroll = (event: any) => {
-    const index = Math.round(event.nativeEvent.contentOffset.x / CARD_WIDTH);
-    setActiveIndex(index);
-  };
+  const onViewableItemsChanged = useCallback(({ viewableItems }: any) => {
+    if (viewableItems.length > 0) {
+      setActiveIndex(viewableItems[0].index ?? 0);
+    }
+  }, []);
+
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 50 }).current;
 
   const renderStars = (rating: number) => {
     const stars = [];
@@ -63,6 +66,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
     return stars;
   };
 
+  const goToImage = useCallback((index: number) => {
+    flatListRef.current?.scrollToIndex({ index, animated: true });
+    setActiveIndex(index);
+  }, []);
+
   const renderImageSection = () => {
     if (!showCarousel) {
       return <Image source={{ uri: product.image }} style={styles.image} resizeMode="cover" />;
@@ -70,23 +78,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onPress, horizontal 
 
     return (
       <View>
-        <ScrollView
-          ref={scrollRef}
+        <FlatList
+          ref={flatListRef}
+          data={images}
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={handleImageScroll}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          keyExtractor={(_, idx) => `${product.id}-img-${idx}`}
+          getItemLayout={(_, index) => ({
+            length: CARD_WIDTH,
+            offset: CARD_WIDTH * index,
+            index,
+          })}
+          renderItem={({ item }) => (
+            <Image source={{ uri: item }} style={styles.image} resizeMode="cover" />
+          )}
           style={styles.imageCarousel}
-        >
-          {images.map((img, idx) => (
-            <Image key={idx} source={{ uri: img }} style={styles.image} resizeMode="cover" />
-          ))}
-        </ScrollView>
+        />
         {indicatorStyle === 'dots' ? (
           <View style={styles.dotsContainer}>
             {images.map((_, idx) => (
-              <View
+              <TouchableOpacity
                 key={idx}
+                onPress={() => goToImage(idx)}
                 style={[
                   styles.dot,
                   idx === activeIndex ? styles.dotActive : styles.dotInactive,
